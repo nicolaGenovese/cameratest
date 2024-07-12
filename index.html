@@ -10,25 +10,60 @@
       max-width: 600px;
       border: 2px solid black;
     }
+    select {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Live Webcam Feed</h1>
   <video id="webcam" autoplay playsinline></video>
+  <select id="videoSource"></select>
 
   <script>
+    async function getVideoSources() {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoSelect = document.getElementById('videoSource');
+        
+        videoSelect.innerHTML = '';
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        
+        videoDevices.forEach((device, index) => {
+          const option = document.createElement('option');
+          option.value = device.deviceId;
+          option.text = device.label || `Camera ${index + 1}`;
+          videoSelect.appendChild(option);
+        });
+
+        videoSelect.onchange = startWebcam;
+      } catch (error) {
+        console.error('Error enumerating devices: ', error);
+      }
+    }
+
     async function startWebcam() {
       try {
         const videoElement = document.getElementById('webcam');
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const videoSelect = document.getElementById('videoSource');
+        const deviceId = videoSelect.value;
+        const constraints = {
+          video: {
+            deviceId: deviceId ? { exact: deviceId } : undefined
+          }
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoElement.srcObject = stream;
       } catch (error) {
         console.error('Error accessing webcam: ', error);
       }
     }
 
-    window.addEventListener('load', startWebcam);
+    window.addEventListener('load', async () => {
+      await getVideoSources();
+      startWebcam();
+    });
   </script>
 </body>
 </html>
-
