@@ -1,1 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webcam Live Stream</title>
+  <style>
+    video {
+      width: 100%;
+      max-width: 600px;
+      border: 2px solid black;
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Webcam Feed</h1>
+  <video id="webcam" autoplay playsinline></video>
+
+  <script>
+    async function startWebcam() {
+      try {
+        const videoElement = document.getElementById('webcam');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoElement.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing webcam: ', error);
+      }
+    }
+
+    window.addEventListener('load', startWebcam);
+  </script>
+</body>
+</html>
 
